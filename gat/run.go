@@ -25,7 +25,7 @@ func (run Run) RunAll() {
 }
 
 func (run Run) RunOnChange(file string) {
-	if isGoFile(file) {
+	if isGoFile(file) && hasTests(file) {
 		// TODO: optimization, skip if no test files exist
 		packageDir := "./" + filepath.Dir(file) // watchDir = ./
 		run.goTest(packageDir)
@@ -37,6 +37,7 @@ func (run Run) goTest(pkgs ...string) {
 	if len(run.Tags) > 0 {
 		args = append(args, []string{"-tags", run.Tags}...)
 	}
+
 	args = append(args, pkgs...)
 
 	command := "go"
@@ -81,4 +82,21 @@ func goList() []string {
 
 func isGoFile(file string) bool {
 	return filepath.Ext(file) == ".go"
+}
+
+func hasTests(file string) bool {
+	isTestFile := strings.HasSuffix(file, "_test.go")
+	if isTestFile {
+		return true
+	}
+
+	ext := filepath.Ext(file)
+	testFile := strings.Join([]string{strings.Split(file, ext)[0], "_test", ext}, "")
+
+	_, err := os.Stat(testFile)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
