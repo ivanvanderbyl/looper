@@ -33,7 +33,7 @@ func (run Run) RunOnChange(file string) {
 }
 
 func (run Run) goTest(pkgs ...string) {
-	args := []string{"test"}
+	args := []string{"test", "-v"}
 	if len(run.Tags) > 0 {
 		args = append(args, []string{"-tags", run.Tags}...)
 	}
